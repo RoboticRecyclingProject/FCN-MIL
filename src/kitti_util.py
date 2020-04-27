@@ -12,6 +12,7 @@ import numpy as np
 from tqdm import tqdm
 import matplotlib.image as mpimg
 
+from bbox import BBox2D, XYXY
 
 def collate_fn(seq_list):
     img, target = zip(*seq_list)
@@ -100,8 +101,7 @@ class KittiDataset(Dataset):
                 obj_box = {"x1": bbox_l, "x2": bbox_r, "y1": bbox_t, "y2": bbox_b}
                 # Positive tile if any of the pedestrian bounding box has a coverage of over 80%
                 coverage = get_iou(crop_box, obj_box)
-                if coverage > 0.45:
-                    bboxs.append([bbox_l-crop_idx, bbox_r-crop_idx, bbox_t, bbox_b]) # need to subtract crop_idx for x coord so that the box can fit.
+                bboxs.append(BBox2D((bbox_l-crop_idx, bbox_t, bbox_r-crop_idx, bbox_b), mode=XYXY))
 
         target["label"] = label
         target["bboxs"] = bboxs
